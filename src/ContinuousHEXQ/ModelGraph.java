@@ -31,7 +31,7 @@ public class ModelGraph extends JPanel {
   @Override
   public void paintComponent(Graphics g) {
       Graphics2D g2d = (Graphics2D)g;
-      if(drawTransition) {g.drawLine(t1x, t1y, t2x, t2y);drawTransition=false;}
+      if(drawTransition) {g.drawLine(t1x, t1y, t2x, t2y); drawTransition=false;}
       if(clear) {clear(g); clear = false;}
       // draw transition cases
       if(drawTransitions){

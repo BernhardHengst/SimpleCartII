@@ -7,7 +7,7 @@ package ContinuousHEXQ;
  * Set of transitions from a state for all actions
  */
 public class Tset{
-    public float [] state = {0f,0f};
+    public float [] state = {0f,0f,0f};
     public float delta []; //coarsity of representation
     public float resolution [] = {0.9f, 0.9f}; // minimum coarsity 
     public int action [];

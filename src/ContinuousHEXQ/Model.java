@@ -21,6 +21,7 @@ public class Model{
     int pCases = 0;     //pointer to latest case
     public Tset [] cases = new Tset[nCases];
     public ModelGraph graph;
+    int numExits = 0;
     //public ExitPolicies exitPolicies = new ExitPolicies();
 
     
@@ -72,6 +73,7 @@ public class Model{
             //c.print();
             pCases++;
             //System.out.println("pCases = "+pCases);
+            if(isExit) System.out.println("exit "+numExits++);
             return;
         }
         
@@ -146,8 +148,8 @@ public class Model{
                     }
                     float change = 0f;
                     if(ti.isExit){
-                       change =  Math.abs(ti.q[a]-0f);
-                       ti.q[a] = 0f; 
+                       change =  Math.abs(ti.q[a]-1000f);
+                       ti.q[a] = 1000f; 
                        //System.out.println("exit found during solvQ");
                     }
                     else if(numNeighbours<1){
@@ -172,6 +174,13 @@ public class Model{
             if(iteration%1==0) System.out.println("iteration: "+iteration+" totChange = "+totChange);
             iteration++;
         } while (totChange > 1f); 
+        //print q values
+        for(int i=0;i<pCases;i++){
+            Tset ti = cases[i];
+            for(int a=0; a<Param.nActions;a++){
+                System.out.println("Q["+ti.state[0]+","+ti.state[1]+"]["+a+"] = "+ti.q[a]);
+            }
+        }
     }
     
     public int greedyAction(float [] s) {

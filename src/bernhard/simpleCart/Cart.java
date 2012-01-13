@@ -71,6 +71,8 @@ public class Cart extends SimpleApplication implements PhysicsTickListener {
     // Goal
     float goal [] = {10f, 10f};
     
+    private int exit = 0;
+    
     
     public static void main(String[] args) {
         Cart app = new Cart();
@@ -199,15 +201,16 @@ public class Cart extends SimpleApplication implements PhysicsTickListener {
             System.arraycopy(nextState, 0, state, 0, state.length); //state = nextState;
             //sense new next state
             float obsNextState [] = {cartVehicle.getPhysicsLocation().z, cartVehicle.getLinearVelocity().z};
+            //obsNextState = transform(obsNextState);
             System.arraycopy(obsNextState, 0, nextState, 0, obsNextState.length);
             lastAct = act; 
             //test for goal
-            reward = -1f; 
+            reward = -0f; 
             if(goalReached(nextState)) reward = 1000f;
             //update model
             if(ticks!=0){
                 Transition transition = new Transition(state, lastAct, reward, nextState);
-                model.update(transition, false);
+                //model.update(transition, false);
                 model.graph.drawTransition(transition);
                 if(!physicsBackground) model.solveQ(0);
                 if(learnParameter){
@@ -220,6 +223,7 @@ public class Cart extends SimpleApplication implements PhysicsTickListener {
             }
             // limit region that cart can operate in and reset on reaching goal
             if(Math.abs(nextState[0])>20f || Math.abs(nextState[1])>20f){
+                    //|| nextState[0]<0 || nextState[1]<0){
                 System.out.println("Cart out of bounds, ticks = "+ticks);
                 terminated = true;
             }
@@ -343,20 +347,25 @@ public class Cart extends SimpleApplication implements PhysicsTickListener {
     private void buildModel(){
         boolean findParameter=true;
         boolean goalExitFound = false;
-        for(float x = -25f; x<25f;x+=1.0f) for(float y = -25f; y<25f;y+=1.0f) for(int a=0;a<3;a++){
+        for(float x = -25.5f; x<25.5f;x+=1.0f) for(float y = -25.5f; y<25.5f;y+=1.0f) for(int a=0;a<3;a++){
             float [] s = {x,y};
+            //float sTrans [] = transform(s);
             //if(goalReached(s)) continue; 
             float dt = timeTick/60f;
             float parameter = 9.6f;
             float [] tempNextState = {x + y*dt+0.5f*parameter*(a-1)*dt*dt, y + parameter*(a-1)*dt};
-            reward = -1f; 
+            //float [] tempNextStateTrans = transform(tempNextState);
+            //if(s[0]*tempNextState[0]<0 || s[1]*tempNextState[1]<0) continue; //skip out of quadrant transitions
+            reward = -0f; 
             boolean isExit = false;
-            if(!goalExitFound && Math.abs(goal[0]-tempNextState[0])<0.5f && Math.abs(goal[1]-tempNextState[1])<0.5f){
+            if(!goalExitFound && Math.abs(goal[0]-tempNextState[0])<0.5f 
+                    && Math.abs(goal[1]-tempNextState[1])<0.5f){
                 reward = 0f;
                 isExit = true;
                 goalExitFound = true;
             }
             Transition transition = new Transition(s, a, reward, tempNextState);
+            //if(sTrans[2]==0 && tempNextStateTrans[2]!=0) isExit = true;
             model.update(transition, isExit);
             //model.graph.transition(transition);
         }
@@ -367,5 +376,14 @@ public class Cart extends SimpleApplication implements PhysicsTickListener {
         if(Math.abs(goal[0]-state[0])<2f && Math.abs(goal[1]-state[1])<2f) return true;
         return false;
     }
+    
+//    private float [] transform(float s []) {
+//        float [] sTrans = {s[0],s[1]};
+//        if(s[0]<0 && s[1]>0) {sTrans[0] = -s[0];}
+//        if(s[0]>0 && s[1]<0) {sTrans[1] = -s[1];} 
+//        if(s[0]<0 && s[1]<0) {sTrans[0] = -s[0]; sTrans[1] = -s[1];}
+//        return sTrans; 
+//    }
+    
 }
 
